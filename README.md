@@ -48,6 +48,32 @@ A modern, full-stack appointment scheduling and service booking platform built w
 
 ---
 
+## 📸 Application Screenshots
+
+### 🌐 Public Experience & Service Catalog
+| Landing Page | Service Offerings Catalog |
+| :---: | :---: |
+| ![Landing Page](screenshots/homepage.png) | ![Services Catalog](screenshots/service_page.png) |
+| *Hero section with value proposition & immediate CTAs* | *Transparent upfront pricing, session durations, and instant booking* |
+
+### 📅 Seamless Appointment Scheduling Flow
+| Service Overview & Expectations | Multi-Step Timezone Booking & Review |
+| :---: | :---: |
+| ![Service Overview](screenshots/booking_page_start.png) | ![Booking Confirmation](screenshots/booking_page_final.png) |
+| *Detailed service outline, deliverables, and expectations* | *Timezone-aware dynamic slot selection, client notes, and confirmation* |
+
+### 📊 Client & Administrator Control Centers
+| Customer Portal Dashboard | Admin Business & Revenue Oversight |
+| :---: | :---: |
+| ![Customer Dashboard](screenshots/customer_dashboard.png) | ![Admin Dashboard](screenshots/admin_dashboard.png) |
+| *Client appointment overview, active bookings, and cancellation controls* | *High-level revenue metrics, total bookings, and appointment tracking* |
+
+### 🛠️ Administrative Booking Oversight
+![Bookings Management](screenshots/booking_management.png)
+*Complete bookings table with real-time status filtering (Pending, Confirmed, Completed, Cancelled) and administrative lifecycle controls.*
+
+---
+
 ## 🏗️ Technology Stack
 
 | Layer | Technologies |
