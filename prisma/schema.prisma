@@ -1,0 +1,151 @@
+// Slotly — Prisma Schema
+// PostgreSQL (Neon) with Better Auth integration
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===========================================
+// Better Auth Core Tables
+// ===========================================
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Admin plugin fields
+  role       String?   @default("user")
+  banned     Boolean?  @default(false)
+  banReason  String?
+  banExpires DateTime?
+
+  sessions Session[]
+  accounts Account[]
+  bookings Booking[]
+
+  @@map("user")
+}
+
+model Session {
+  id             String   @id @default(uuid())
+  expiresAt      DateTime
+  token          String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?
+  userAgent      String?
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  impersonatedBy String?
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(uuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(uuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+// ===========================================
+// Application Tables
+// ===========================================
+
+model Service {
+  id              String    @id @default(uuid())
+  name            String
+  slug            String    @unique
+  description     String
+  durationMinutes Int
+  price           Decimal   @db.Decimal(10, 2)
+  currency        String    @default("USD")
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  bookings Booking[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@map("service")
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model Booking {
+  id              String        @id @default(uuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  serviceId       String
+  service         Service       @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  scheduledAt     DateTime
+  endTime         DateTime
+  status          BookingStatus @default(PENDING)
+  notes           String?
+  cancelledAt     DateTime?
+  cancelledBy     String?       // "customer" or "admin"
+  cancellationReason String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([serviceId])
+  @@index([scheduledAt])
+  @@index([status])
+  // Prevent overlapping bookings for the same service time slot
+  @@unique([serviceId, scheduledAt], name: "unique_service_time_slot")
+  @@map("booking")
+}
+
+// Business hours configuration for appointment scheduling
+model BusinessHours {
+  id        String  @id @default(uuid())
+  dayOfWeek Int     // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  openTime  String  // "09:00" format (24h)
+  closeTime String  // "17:00" format (24h)
+  isClosed  Boolean @default(false)
+
+  @@unique([dayOfWeek])
+  @@map("business_hours")
+}
